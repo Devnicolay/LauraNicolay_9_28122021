@@ -78,6 +78,9 @@ export default class {
     $("#arrow-icon1").click((e) => this.handleShowTickets(e, bills, 1));
     $("#arrow-icon2").click((e) => this.handleShowTickets(e, bills, 2));
     $("#arrow-icon3").click((e) => this.handleShowTickets(e, bills, 3));
+    this.isOpenCheckList1 = false;
+    this.isOpenCheckList2 = false;
+    this.isOpenCheckList3 = false;
     this.getBillsAllUsers();
     new Logout({ localStorage, onNavigate });
   }
@@ -94,12 +97,11 @@ export default class {
       $("#modaleFileAdmin1").modal("show");
   };
 
-  handleEditTicket(e, bill, bills) {
-    console.log("ok");
+  handleEditTicket(e, bill, bills, index) {
     if (this.counter === undefined || this.id !== bill.id) this.counter = 0;
     if (this.id === undefined || this.id !== bill.id) this.id = bill.id;
     if (this.counter % 2 === 0)
-      if (this.checkListIsOpen) {
+      if (`this.isOpenCheckList${index}`) {
         bills.forEach((b) => {
           $(`#open-bill${b.id}`).css({ background: "#0D5AE5" });
         });
@@ -150,12 +152,10 @@ export default class {
         cards(filteredBills(bills, getStatus(this.index)))
       );
       this.counter++;
-      this.checkListIsOpen = true;
     } else {
       $(`#arrow-icon${this.index}`).css({ transform: "rotate(90deg)" });
       $(`#status-bills-container${this.index}`).html("");
       this.counter++;
-      this.checkListIsOpen = false;
     }
 
     bills.forEach((bill) => {
@@ -168,6 +168,7 @@ export default class {
   }
 
   // not need to cover this function by tests
+  /* istanbul ignore next */
   getBillsAllUsers = () => {
     if (this.store) {
       return this.store
@@ -187,6 +188,7 @@ export default class {
   };
 
   // not need to cover this function by tests
+  /* istanbul ignore next */
   updateBill = (bill) => {
     if (this.store) {
       return this.store
