@@ -1,16 +1,26 @@
-import { fireEvent, screen } from "@testing-library/dom";
+import { screen } from "@testing-library/dom";
 import userEvent from "@testing-library/user-event";
 import BillsUI from "../views/BillsUI.js";
 import { bills } from "../fixtures/bills.js";
-import { ROUTES, ROUTES_PATH } from "../constants/routes";
-import Dashboard, { filteredBills, cards } from "../containers/Dashboard.js";
+import { ROUTES_PATH } from "../constants/routes";
+import Dashboard from "../containers/Dashboard.js";
 import VerticalLayout from "../views/VerticalLayout.js";
 import { localStorageMock } from "../__mocks__/localStorage.js";
 import Router from "../app/Router";
 import store from "../__mocks__/store";
 
 describe("Given I am connected as an employee", () => {
+  // Build DOM as if I am an employee
+  function buildDomEmployee() {
+    Object.defineProperty(window, "localStorage", { value: localStorageMock });
+    const user = JSON.stringify({
+      type: "Employee",
+    });
+    window.localStorage.setItem("user", user);
+  }
   test("Then I am on Bills Page", () => {
+    // Build DOM as if I am an employee
+    buildDomEmployee();
     // Build DOM with data of bills
     const html = BillsUI({ data: [] });
     document.body.innerHTML = html;
@@ -19,30 +29,24 @@ describe("Given I am connected as an employee", () => {
 
     expect(screen.getAllByText("Billed")).toBeTruthy();
   });
-  test("Then bills should be ordered from earliest to latest", () => {
-    // Build DOM with data of bills
-    const html = BillsUI({ data: bills });
-    document.body.innerHTML = html;
 
-    const dates = screen
-      .getAllByText(
-        /^(19|20)\d\d[- /.](0[1-9]|1[012])[- /.](0[1-9]|[12][0-9]|3[01])$/i
-      )
-      .map((a) => a.innerHTML);
-    const antiChrono = (a, b) => (a < b ? 1 : -1);
-    const datesSorted = [...dates].sort(antiChrono);
-    expect(dates).toEqual(datesSorted);
-  });
-});
+  //test("Then data of bill are display", () => {
+  //// Build DOM as if I am an employee
+  //buildDomEmployee();
 
-describe("Given I am connected as Employee", () => {
+  //// Build DOM with data of bills
+  //const html = BillsUI({ data: bills });
+  //document.body.innerHTML = html;
+
+  //const eyes = screen.getAllByTestId("icon-eye");
+  //expect(eyes).toBeTruthy();
+
+  //expect(screen.getByText("Repas d'affaire")).toBeTruthy();
+  //});
+
   test("Then bill icon in vertical layout should be highlighted", () => {
     // Build DOM as if I am an employee
-    Object.defineProperty(window, "localStorage", { value: localStorageMock });
-    const user = JSON.stringify({
-      type: "Employee",
-    });
-    window.localStorage.setItem("user", user);
+    buildDomEmployee();
 
     // Build DOM with Bills
     const pathBills = ROUTES_PATH["Bills"];
@@ -58,86 +62,103 @@ describe("Given I am connected as Employee", () => {
 
     expect(screen.getAllByText("Billed")).toBeTruthy();
   });
-});
 
-describe("Given I am on Bills page and it's loading", () => {
-  test("Then it should have a loading page", () => {
-    // Build DOM as if page is loading
-    const html = BillsUI({
-      data: [],
-      loading: true,
-    });
-    document.body.innerHTML = html;
-
-    expect(screen.getAllByText("Loading...")).toBeTruthy();
-  });
-});
-
-describe("Given I am on Bills page and there is an error", () => {
-  test("Then it should have an error page", () => {
-    // Build DOM as if page is not loading and have an error
-    const html = BillsUI({
-      data: [],
-      loading: false,
-      error: "erreur",
-    });
-    document.body.innerHTML = html;
-
-    expect(screen.getAllByText("Erreur")).toBeTruthy();
-  });
-});
-
-describe("Given I am on Bills page and I click on icon eye", () => {
-  test("Then it should have open modal", () => {
-    // Build DOM as if I am an employee
-    Object.defineProperty(window, "localStorage", { value: localStorageMock });
-    const user = JSON.stringify({
-      type: "Employee",
-    });
-    window.localStorage.setItem("user", user);
-
+  test("Then bills should be ordered from earliest to latest", () => {
     // Build DOM with data of bills
     const html = BillsUI({ data: bills });
     document.body.innerHTML = html;
 
-    // Mock function handleClickIconEye()
-    const store = null;
-    const dashboard = new Dashboard({
-      document,
-      onNavigate,
-      store,
-      bills,
-      localStorage: window.localStorage,
-    });
+    const dates = screen
+      .getAllByText(
+        /^(19|20)\d\d[- /.](0[1-9]|1[012])[- /.](0[1-9]|[12][0-9]|3[01])$/i
+      )
+      .map((a) => a.innerHTML);
+    const antiChrono = (a, b) => (a < b ? 1 : -1);
+    const datesSorted = [...dates].sort(antiChrono);
+    expect(dates).toEqual(datesSorted);
+  });
 
-    const mockHandleClickIconEye = jest.fn(dashboard.handleClickIconEye);
+  describe("When I click on button 'Nouvelle note de frais'", () => {
+    test("Then it should render new bill form", () => {
+      expect(
+        screen.getByTestId("btn-new-bill").classList.contains("btn-primary")
+      ).toBe(true);
 
-    const eyes = screen.getAllByTestId("icon-eye");
-    expect(eyes).toBeTruthy();
-
-    eyes.forEach((eye) => {
-      eye.addEventListener("click", mockHandleClickIconEye);
-      userEvent.click(eye);
-
-      expect(mockHandleClickIconEye).toHaveBeenCalled();
-
-      // Open form modal of document when click on button eye button
-      eye.addEventListener("click", () => {
-        const modalJustificative = screen.getByRole("document");
-        expect(modalJustificative).toBe(true);
+      screen.getByTestId("btn-new-bill").addEventListener("click", () => {
+        expect(screen.getByText("Envoyer une note de frais")).toBe(true);
       });
     });
   });
 });
 
-describe("Given I am an employée and I click on new bill button", () => {
-  test("Then it should render new bill form", () => {
-    expect(
-      screen.getByTestId("btn-new-bill").classList.contains("btn-primary")
-    ).toBe(true);
+describe("Given I am on Bills page", () => {
+  describe("When it's loading", () => {
+    test("Then it should have a loading page", () => {
+      // Build DOM as if page is loading
+      const html = BillsUI({
+        data: [],
+        loading: true,
+      });
+      document.body.innerHTML = html;
 
-    screen.getByTestId("btn-new-bill").addEventListener("click", () => {
-      expect(screen.getByText("Envoyer une note de frais")).toBe(true);
+      expect(screen.getAllByText("Loading...")).toBeTruthy();
+    });
+  });
+
+  describe("When there is an error", () => {
+    test("Then it should have an error page", () => {
+      // Build DOM as if page is not loading and have an error
+      const html = BillsUI({
+        data: [],
+        loading: false,
+        error: "erreur",
+      });
+      document.body.innerHTML = html;
+
+      expect(screen.getAllByText("Erreur")).toBeTruthy();
+    });
+  });
+
+  describe("When I click on icon eye", () => {
+    test("Then it should have open modal", () => {
+      // Build DOM as if I am an employee
+      Object.defineProperty(window, "localStorage", {
+        value: localStorageMock,
+      });
+      const user = JSON.stringify({
+        type: "Employee",
+      });
+      window.localStorage.setItem("user", user);
+
+      // Build DOM with data of bills
+      const html = BillsUI({ data: bills });
+      document.body.innerHTML = html;
+
+      // Mock function handleClickIconEye()
+      const store = null;
+      const dashboard = new Dashboard({
+        document,
+        onNavigate,
+        store,
+        bills,
+        localStorage: window.localStorage,
+      });
+
+      const mockHandleClickIconEye = jest.fn(dashboard.handleClickIconEye);
+
+      const eyes = screen.getAllByTestId("icon-eye");
+      expect(eyes).toBeTruthy();
+
+      eyes[0].addEventListener("click", mockHandleClickIconEye);
+      userEvent.click(eyes[0]);
+
+      expect(mockHandleClickIconEye).toHaveBeenCalled();
+
+      // Open form modal of document when click on button eye button
+      eyes[0].addEventListener("click", () => {
+        const modalJustificative = screen.getByRole("document");
+        expect(modalJustificative).toBe(true);
+      });
     });
   });
 });
