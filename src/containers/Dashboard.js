@@ -97,27 +97,13 @@ export default class {
       $("#modaleFileAdmin1").modal("show");
   };
 
-  handleEditTicket(e, bill, bills, index) {
-    if (this.counter === undefined || this.id !== bill.id) this.counter = 0;
-    if (this.id === undefined || this.id !== bill.id) this.id = bill.id;
-    if (this.counter % 2 === 0)
-      if (`this.isOpenCheckList${index}`) {
-        bills.forEach((b) => {
-          $(`#open-bill${b.id}`).css({ background: "#0D5AE5" });
-        });
-        $(`#open-bill${bill.id}`).css({ background: "#2A2B35" });
-        $(".dashboard-right-container div").html(DashboardFormUI(bill));
-        $(".vertical-navbar").css({ height: "150vh" });
-        this.counter++;
-      } else {
-        $(`#open-bill${bill.id}`).css({ background: "#0D5AE5" });
-
-        $(".dashboard-right-container div").html(`
-        <div id="big-billed-icon"> ${BigBilledIcon} </div>
-      `);
-        $(".vertical-navbar").css({ height: "120vh" });
-        this.counter++;
-      }
+  handleEditTicket(e, bill, bills) {
+    bills.forEach((b) => {
+      $(`#open-bill${b.id}`).css({ background: "#0D5AE5" });
+    });
+    $(`#open-bill${bill.id}`).css({ background: "#2A2B35" });
+    $(".dashboard-right-container div").html(DashboardFormUI(bill));
+    $(".vertical-navbar").css({ height: "150vh" });
     $("#icon-eye-d").click(this.handleClickIconEye);
     $("#btn-accept-bill").click((e) => this.handleAcceptSubmit(e, bill));
     $("#btn-refuse-bill").click((e) => this.handleRefuseSubmit(e, bill));
@@ -160,7 +146,7 @@ export default class {
 
     bills.forEach((bill) => {
       $(`#open-bill${bill.id}`).click((e) =>
-        this.handleEditTicket(e, bill, bills)
+        this.handleEditTicket(e, bill, bills, index)
       );
     });
 
