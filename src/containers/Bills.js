@@ -1,6 +1,7 @@
 import { ROUTES_PATH } from "../constants/routes.js";
 import { formatDate, formatStatus } from "../app/format.js";
 import Logout from "./Logout.js";
+import { sortDate } from "../views/BillsUI.js";
 
 export default class {
   constructor({ document, onNavigate, store, localStorage }) {
@@ -43,7 +44,8 @@ export default class {
         .bills()
         .list()
         .then((snapshot) => {
-          const bills = snapshot.map((doc) => {
+          console.log(snapshot);
+          const bills = sortDate(snapshot).map((doc) => {
             try {
               return {
                 ...doc,

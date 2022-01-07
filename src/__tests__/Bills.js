@@ -6,6 +6,7 @@ import Bills from "../containers/Bills.js";
 import { localStorageMock } from "../__mocks__/localStorage.js";
 import Router from "../app/Router";
 import store from "../__mocks__/store";
+import { sortDate } from "../views/BillsUI.js";
 
 describe("Given I am connected as an employee", () => {
   // Build DOM as if I am an employee
@@ -76,7 +77,7 @@ describe("Given I am connected as an employee", () => {
 
   test("Then bills should be ordered from earliest to latest", () => {
     // Build DOM with data of bills
-    const html = BillsUI({ data: bills });
+    const html = BillsUI({ data: sortDate(bills) });
     document.body.innerHTML = html;
 
     const dates = screen
@@ -103,7 +104,6 @@ describe("Given I am connected as an employee", () => {
         document,
         onNavigate,
         store,
-        bills,
         localStorage: window.localStorage,
       });
 
