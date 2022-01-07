@@ -25,10 +25,9 @@ export default class NewBill {
     const fileName = filePath[filePath.length - 1];
     const formData = new FormData();
     const fileFormatAuthorized = ["jpg", "png", "jpeg"];
-    const getFileExtension = fileName.split(".").pop();
-    console.log(getFileExtension);
-    if (fileFormatAuthorized.includes(getFileExtension)) {
-      console.log("format OK");
+    const fileExtension = fileName.split(".").pop().toLowerCase();
+    console.log(fileExtension);
+    if (fileFormatAuthorized.includes(fileExtension)) {
       const email = JSON.parse(localStorage.getItem("user")).email;
       formData.append("file", file);
       formData.append("email", email);
@@ -38,8 +37,8 @@ export default class NewBill {
     }
   };
 
+  /* istanbul ignore next */
   handleStore(formData, fileName) {
-    console.log(fileName);
     this.store
       .bills()
       .create({
@@ -86,6 +85,7 @@ export default class NewBill {
   };
 
   // not need to cover this function by tests
+  /* istanbul ignore next */
   updateBill = (bill) => {
     if (this.store) {
       this.store

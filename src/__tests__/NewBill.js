@@ -8,18 +8,18 @@ import { bills } from "../fixtures/bills.js";
 import store from "../__mocks__/store";
 import BillsUI from "../views/BillsUI.js";
 
+// Build DOM employee
+Object.defineProperty(window, "localStorage", {
+  value: localStorageMock,
+});
+const user = JSON.stringify({
+  type: "Employee",
+});
+window.localStorage.setItem("user", user);
+
 describe("Given I am connected as an employee", () => {
   describe("When I am on NewBill Page", () => {
     test("Then email icon in vertical layout should be highlighted", () => {
-      // Build DOM employee
-      Object.defineProperty(window, "localStorage", {
-        value: localStorageMock,
-      });
-      const user = JSON.stringify({
-        type: "Employee",
-      });
-      window.localStorage.setItem("user", user);
-
       // Build DOM New Bill
       const pathNewBills = ROUTES_PATH["NewBill"];
       Object.defineProperty(window, "location", {
@@ -34,23 +34,21 @@ describe("Given I am connected as an employee", () => {
 
       expect(iconMail.classList.contains("active-icon")).toBe(true);
     });
-  });
-  describe("When I am on NewBill Page and add justificative", () => {
-    test("Then when I add an image with extension jpg, png or jpeg", () => {
+
+    test("Then I add an image in correct format than jpg, png or jpeg", () => {
       // Build DOM for new bill page
       const html = NewBillUI();
       document.body.innerHTML = html;
 
       // Mock function handleChangeFile()
-      const store = null;
       const onNavigate = (pathname) => {
         document.body.innerHTML = pathname;
       };
+
       const newBill = new NewBill({
         document,
         onNavigate,
         store,
-        bills,
         localStorage: window.localStorage,
       });
 
@@ -70,11 +68,16 @@ describe("Given I am connected as an employee", () => {
       expect(mockHandleChangeFile).toHaveBeenCalled();
       expect(inputJustificative.files[0].name).toBe("file.jpg");
 
+      //const mockHandleStore = jest.fn(newBill.handleStore);
+      //expect(mockHandleStore).toHaveBeenCalled();
+
+      expect(inputJustificative.files[0]).toBeTruthy();
+
       jest.spyOn(window, "alert").mockImplementation(() => {});
       expect(window.alert).not.toHaveBeenCalled();
     });
 
-    test("Then when I add an file with other extension than jpg, png or jpeg", () => {
+    test("Then I add an file in incorrect format than jpg, png or jpeg", () => {
       // Build DOM for new bill page
       const html = NewBillUI();
       document.body.innerHTML = html;
@@ -88,7 +91,6 @@ describe("Given I am connected as an employee", () => {
         document,
         onNavigate,
         store,
-        bills,
         localStorage: window.localStorage,
       });
 
@@ -110,70 +112,62 @@ describe("Given I am connected as an employee", () => {
       jest.spyOn(window, "alert").mockImplementation(() => {});
       expect(window.alert).toHaveBeenCalled();
     });
-  });
-});
 
-describe("Given form new bill is open, when click on submit button", () => {
-  test("Then should called handleClickNewBill function", () => {
-    // Build DOM employee
-    Object.defineProperty(window, "localStorage", { value: localStorageMock });
-    const user = JSON.stringify({
-      type: "Employee",
+    describe("Given when click on submit button of form new bill", () => {
+      test("Then should called handleClickNewBill function", () => {
+        // Build DOM new bill
+        const html = NewBillUI();
+        document.body.innerHTML = html;
+
+        // Mock function handleSubmit()
+        const store = null;
+        const onNavigate = (pathname) => {
+          document.body.innerHTML = pathname;
+        };
+
+        const newBill = new NewBill({
+          document,
+          onNavigate,
+          store,
+          localStorage: window.localStorage,
+        });
+
+        const submitFormNewBill = screen.getByTestId("form-new-bill");
+        expect(submitFormNewBill).toBeTruthy();
+
+        const mockHandleSubmit = jest.fn(newBill.handleSubmit);
+        submitFormNewBill.addEventListener("submit", mockHandleSubmit);
+        fireEvent.submit(submitFormNewBill);
+
+        expect(mockHandleSubmit).toHaveBeenCalled();
+      });
+
+      test("Then bill form is submited", () => {
+        // Build Dom New bill
+        const html = NewBillUI();
+        document.body.innerHTML = html;
+
+        // // Mock function createBill()
+        const store = null;
+        const newBill = new NewBill({
+          document,
+          onNavigate,
+          store,
+          localStorage: window.localStorage,
+        });
+
+        const mockCreateBill = jest.fn(newBill.updateBill);
+        const submitFormNewBill = screen.getByTestId("form-new-bill");
+
+        submitFormNewBill.addEventListener("submit", mockCreateBill);
+        fireEvent.submit(submitFormNewBill);
+
+        expect(mockCreateBill).toHaveBeenCalled();
+
+        // When form new bill is submited, return on bills page
+        expect(screen.getAllByText("Envoyer une note de frais")).toBeTruthy();
+      });
     });
-    window.localStorage.setItem("user", user);
-
-    // Build DOM new bill
-    const html = NewBillUI();
-    document.body.innerHTML = html;
-
-    // Mock function handleSubmit()
-    const store = null;
-    const onNavigate = (pathname) => {
-      document.body.innerHTML = pathname;
-    };
-
-    const newBill = new NewBill({
-      document,
-      onNavigate,
-      store,
-      bills,
-      localStorage: window.localStorage,
-    });
-
-    const submitFormNewBill = screen.getByTestId("form-new-bill");
-    expect(submitFormNewBill).toBeTruthy();
-
-    const mockHandleSubmit = jest.fn(newBill.handleSubmit);
-    submitFormNewBill.addEventListener("submit", mockHandleSubmit);
-    fireEvent.submit(submitFormNewBill);
-
-    expect(mockHandleSubmit).toHaveBeenCalled();
-  });
-
-  test("Then bill form is submited", () => {
-    // Build Dom New bill
-    const html = NewBillUI();
-    document.body.innerHTML = html;
-
-    // // Mock function createBill()
-    const store = null;
-    const newBill = new NewBill({
-      document,
-      onNavigate,
-      store,
-      localStorage: window.localStorage,
-    });
-
-    const mockCreateBill = jest.fn(newBill.updateBill);
-    const submitFormNewBill = screen.getByTestId("form-new-bill");
-
-    submitFormNewBill.addEventListener("submit", mockCreateBill);
-    fireEvent.submit(submitFormNewBill);
-
-    expect(mockCreateBill).toHaveBeenCalled();
-
-    // When form new bill is submited, return on bills page
-    expect(screen.getAllByText("Envoyer une note de frais")).toBeTruthy();
   });
 });
 
