@@ -88,7 +88,7 @@ describe("Given I am connected as an employee", () => {
       });
 
       // Build DOM with data of bills
-      const html = BillsUI({ data: bills });
+      const html = BillsUI({ data: [...bills] });
       document.body.innerHTML = html;
 
       const displayedDates = screen
