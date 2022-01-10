@@ -3,13 +3,14 @@ import ErrorPage from "./ErrorPage.js";
 import LoadingPage from "./LoadingPage.js";
 
 import Actions from "./Actions.js";
+import { formatDate } from "../app/format.js";
 
 const row = (bill) => {
   return `
     <tr>
       <td data-testid="type">${bill.type}</td>
       <td data-testid="name">${bill.name}</td>
-      <td data-testid="date">${bill.date}</td>
+      <td data-testid="date">${formatDate(bill.date)}</td>
       <td data-testid="amount">${bill.amount} €</td>
       <td data-testid="status">${bill.status}</td>
       <td>
@@ -19,12 +20,11 @@ const row = (bill) => {
     `;
 };
 
-export const sortDate = (data) => {
-  return data.sort((a, b) => (new Date(a.date) < new Date(b.date) ? 1 : -1));
-};
-
 const rows = (data) => {
-  return data && data.length ? data.map((bill) => row(bill)).join("") : "";
+  const datas = data.sort((a, b) =>
+    new Date(a.date) < new Date(b.date) ? -1 : 1
+  );
+  return data && data.length ? datas.map((bill) => row(bill)).join("") : "";
 };
 
 export default ({ data: bills, loading, error }) => {
