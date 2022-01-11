@@ -7,7 +7,7 @@ import { formatDate } from "../app/format.js";
 
 const row = (bill) => {
   return `
-    <tr>
+    <tr data-testid="line">
       <td data-testid="type">${bill.type}</td>
       <td data-testid="name">${bill.name}</td>
       <td data-testid="date">${formatDate(bill.date)}</td>
@@ -20,11 +20,16 @@ const row = (bill) => {
     `;
 };
 
+export const dateSorted = (data) => {
+  return data.sort((a, b) => (new Date(a.date) < new Date(b.date) ? -1 : 1));
+};
+
 const rows = (data) => {
-  const datas = data.sort((a, b) =>
-    new Date(a.date) < new Date(b.date) ? -1 : 1
-  );
-  return data && data.length ? datas.map((bill) => row(bill)).join("") : "";
+  return data && data.length
+    ? dateSorted(data)
+        .map((bill) => row(bill))
+        .join("")
+    : "";
 };
 
 export default ({ data: bills, loading, error }) => {
