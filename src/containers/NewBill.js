@@ -26,11 +26,11 @@ export default class NewBill {
     const formData = new FormData();
     const fileFormatAuthorized = ["jpg", "png", "jpeg"];
     const fileExtension = fileName.split(".").pop().toLowerCase();
+    const email = JSON.parse(localStorage.getItem("user")).email;
+    formData.append("file", file);
+    formData.append("email", email);
     console.log(fileExtension);
     if (fileFormatAuthorized.includes(fileExtension)) {
-      const email = JSON.parse(localStorage.getItem("user")).email;
-      formData.append("file", file);
-      formData.append("email", email);
       this.handleStore(formData, fileName);
     } else {
       alert("Le format du fichier doit être en jpg, png ou jpeg");
