@@ -21,7 +21,7 @@ const row = (bill) => {
 };
 
 export const dateSorted = (data) => {
-  return data.sort((a, b) => (new Date(a.date) < new Date(b.date) ? -1 : 1));
+  return data.sort((a, b) => (new Date(a.date) < new Date(b.date) ? 1 : -1));
 };
 
 const rows = (data) => {

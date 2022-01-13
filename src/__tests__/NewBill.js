@@ -1,11 +1,9 @@
 import { fireEvent, screen } from "@testing-library/dom";
-import userEvent from "@testing-library/user-event";
 import NewBillUI from "../views/NewBillUI.js";
 import NewBill from "../containers/NewBill.js";
 import { localStorageMock } from "../__mocks__/localStorage.js";
 import { ROUTES, ROUTES_PATH } from "../constants/routes";
 import Router from "../app/Router";
-import { bills } from "../fixtures/bills.js";
 import store from "../__mocks__/store";
 import BillsUI from "../views/BillsUI.js";
 
@@ -37,92 +35,96 @@ describe("Given I am connected as an employee", () => {
       expect(iconMail.classList.contains("active-icon")).toBe(true);
     });
 
-    test("Then I add an image in correct format than jpg, png or jpeg", () => {
-      // Build DOM for new bill page
-      const html = NewBillUI();
-      document.body.innerHTML = html;
+    describe("When I add an image in correct format than jpg, png or jpeg", () => {
+      test("Then It should import file name and nothing alert displayed", () => {
+        // Build DOM for new bill page
+        const html = NewBillUI();
+        document.body.innerHTML = html;
 
-      // Instantiate NewBill()
-      const onNavigate = (pathname) => {
-        document.body.innerHTML = ROUTES({ pathname });
-      };
+        // Instantiate NewBill()
+        const onNavigate = (pathname) => {
+          document.body.innerHTML = ROUTES({ pathname });
+        };
 
-      const newBill = new NewBill({
-        document,
-        onNavigate,
-        store,
-        localStorage: window.localStorage,
+        const newBill = new NewBill({
+          document,
+          onNavigate,
+          store,
+          localStorage: window.localStorage,
+        });
+
+        // Mocks
+        const mockHandleChangeFile = jest.fn(newBill.handleChangeFile);
+        const mockHandleStore = jest.fn(newBill.handleStore);
+        const mockAlert = jest.spyOn(window, "alert");
+        window.alert = jest.fn();
+
+        const inputJustificative = screen.getByTestId("file");
+        expect(inputJustificative).toBeTruthy();
+
+        // Simulate if the file is an jpg extension
+        inputJustificative.addEventListener("change", mockHandleChangeFile);
+        fireEvent.change(inputJustificative, {
+          target: {
+            files: [new File(["file.jpg"], "file.jpg", { type: "file/jpg" })],
+          },
+        });
+
+        expect(mockHandleChangeFile).toHaveBeenCalled();
+        expect(inputJustificative.files[0].name).toBe("file.jpg");
+
+        expect(inputJustificative.files[0]).toBeTruthy();
+
+        expect(mockAlert).not.toHaveBeenCalled();
+
+        //expect(mockHandleStore).toHaveBeenCalled();
       });
-
-      // Mocks
-      const mockHandleChangeFile = jest.fn(newBill.handleChangeFile);
-      const mockHandleStore = jest.fn(newBill.handleStore);
-      const mockAlert = jest.spyOn(window, "alert");
-      window.alert = jest.fn();
-
-      const inputJustificative = screen.getByTestId("file");
-      expect(inputJustificative).toBeTruthy();
-
-      // Simulate if the file is an jpg extension
-      inputJustificative.addEventListener("change", mockHandleChangeFile);
-      fireEvent.change(inputJustificative, {
-        target: {
-          files: [new File(["file.jpg"], "file.jpg", { type: "file/jpg" })],
-        },
-      });
-
-      expect(mockHandleChangeFile).toHaveBeenCalled();
-      expect(inputJustificative.files[0].name).toBe("file.jpg");
-
-      expect(inputJustificative.files[0]).toBeTruthy();
-
-      expect(mockAlert).not.toHaveBeenCalled();
-
-      expect(mockHandleStore).toHaveBeenCalled();
     });
 
-    test("Then I add an file in incorrect format than jpg, png or jpeg", () => {
-      // Build DOM for new bill page
-      const html = NewBillUI();
-      document.body.innerHTML = html;
+    describe("When I add an file in incorrect format than jpg, png or jpeg", () => {
+      test("Then the file name is not imported and an alert displayed", () => {
+        // Build DOM for new bill page
+        const html = NewBillUI();
+        document.body.innerHTML = html;
 
-      // Instantiate NewBill()
-      const onNavigate = (pathname) => {
-        document.body.innerHTML = ROUTES({ pathname });
-      };
-      const newBill = new NewBill({
-        document,
-        onNavigate,
-        store,
-        localStorage: window.localStorage,
+        // Instantiate NewBill()
+        const onNavigate = (pathname) => {
+          document.body.innerHTML = ROUTES({ pathname });
+        };
+        const newBill = new NewBill({
+          document,
+          onNavigate,
+          store,
+          localStorage: window.localStorage,
+        });
+
+        // Mocks
+        const mockHandleChangeFile = jest.fn(newBill.handleChangeFile);
+        const mockHandleStore = jest.fn(newBill.handleStore);
+        const mockAlert = jest.spyOn(window, "alert");
+        window.alert = jest.fn();
+
+        const inputJustificative = screen.getByTestId("file");
+        expect(inputJustificative).toBeTruthy();
+
+        // Simulate if the file is wrong format and is not an jpg, png or jpeg extension
+        inputJustificative.addEventListener("change", mockHandleChangeFile);
+        fireEvent.change(inputJustificative, {
+          target: {
+            files: [new File(["file.pdf"], "file.pdf", { type: "file/pdf" })],
+          },
+        });
+        expect(mockHandleChangeFile).toHaveBeenCalled();
+        expect(inputJustificative.files[0].name).not.toBe("file.jpg");
+
+        expect(mockHandleStore).not.toHaveBeenCalled();
+
+        expect(mockAlert).toHaveBeenCalled();
       });
-
-      // Mocks
-      const mockHandleChangeFile = jest.fn(newBill.handleChangeFile);
-      const mockHandleStore = jest.fn(newBill.handleStore);
-      const mockAlert = jest.spyOn(window, "alert");
-      window.alert = jest.fn();
-
-      const inputJustificative = screen.getByTestId("file");
-      expect(inputJustificative).toBeTruthy();
-
-      // Simulate if the file is wrong format and is not an jpg, png or jpeg extension
-      inputJustificative.addEventListener("change", mockHandleChangeFile);
-      fireEvent.change(inputJustificative, {
-        target: {
-          files: [new File(["file.pdf"], "file.pdf", { type: "file/pdf" })],
-        },
-      });
-      expect(mockHandleChangeFile).toHaveBeenCalled();
-      expect(inputJustificative.files[0].name).not.toBe("file.jpg");
-
-      expect(mockHandleStore).not.toHaveBeenCalled();
-
-      expect(mockAlert).toHaveBeenCalled();
     });
 
     describe("Given when click on submit button of form new bill", () => {
-      test("Then new bill should be submitted and redirect to bills page", () => {
+      test("Then new bill should be submitted and create and redirect to bills page", () => {
         // Build DOM new bill
         const html = NewBillUI();
         document.body.innerHTML = html;
@@ -197,49 +199,47 @@ describe("Given I am connected as an employee", () => {
   });
 });
 
-describe("Given I am an user connected as employee", () => {
-  describe("When I navigate to Dashboard employee", () => {
-    test("Add bills from mock API POST", async () => {
-      const getSpy = jest.spyOn(store, "post");
-      const newBill = {
-        id: "47qAXb6fIm2zOKkLzMro",
-        vat: "80",
-        fileUrl:
-          "https://test.storage.tld/v0/b/billable-677b6.a…f-1.jpg?alt=media&token=c1640e12-a24b-4b11-ae52-529112e9602a",
-        status: "pending",
-        type: "Hôtel et logement",
-        commentary: "séminaire billed",
-        name: "encore",
-        fileName: "preview-facture-free-201801-pdf-1.jpg",
-        date: "2004-04-04",
-        amount: 400,
-        commentAdmin: "ok",
-        email: "a@a",
-        pct: 20,
-      };
-      const bills = await store.post(newBill);
-      expect(getSpy).toHaveBeenCalledTimes(1);
-      expect(bills.data.length).toBe(5);
-    });
+describe("When I navigate to Dashboard employee", () => {
+  test("Then it add bills from mock API POST", async () => {
+    const getSpy = jest.spyOn(store, "post");
+    const newBill = {
+      id: "47qAXb6fIm2zOKkLzMro",
+      vat: "80",
+      fileUrl:
+        "https://test.storage.tld/v0/b/billable-677b6.a…f-1.jpg?alt=media&token=c1640e12-a24b-4b11-ae52-529112e9602a",
+      status: "pending",
+      type: "Hôtel et logement",
+      commentary: "séminaire billed",
+      name: "encore",
+      fileName: "preview-facture-free-201801-pdf-1.jpg",
+      date: "2004-04-04",
+      amount: 400,
+      commentAdmin: "ok",
+      email: "a@a",
+      pct: 20,
+    };
+    const bills = await store.post(newBill);
+    expect(getSpy).toHaveBeenCalledTimes(1);
+    expect(bills.data.length).toBe(5);
+  });
 
-    test("Add bills from an API and fails with 404 message error", async () => {
-      store.post.mockImplementationOnce(() =>
-        Promise.reject(new Error("Erreur 404"))
-      );
-      const html = BillsUI({ error: "Erreur 404" });
-      document.body.innerHTML = html;
-      const message = await screen.getByText(/Erreur 404/);
-      expect(message).toBeTruthy();
-    });
+  test("Then it add bills from an API and fails with 404 message error", async () => {
+    store.post.mockImplementationOnce(() =>
+      Promise.reject(new Error("Erreur 404"))
+    );
+    const html = BillsUI({ error: "Erreur 404" });
+    document.body.innerHTML = html;
+    const message = await screen.getByText(/Erreur 404/);
+    expect(message).toBeTruthy();
+  });
 
-    test("Add bill from an API and fails with 500 message error", async () => {
-      store.post.mockImplementationOnce(() =>
-        Promise.reject(new Error("Erreur 500"))
-      );
-      const html = BillsUI({ error: "Erreur 500" });
-      document.body.innerHTML = html;
-      const message = await screen.getByText(/Erreur 500/);
-      expect(message).toBeTruthy();
-    });
+  test("Then it add bill from an API and fails with 500 message error", async () => {
+    store.post.mockImplementationOnce(() =>
+      Promise.reject(new Error("Erreur 500"))
+    );
+    const html = BillsUI({ error: "Erreur 500" });
+    document.body.innerHTML = html;
+    const message = await screen.getByText(/Erreur 500/);
+    expect(message).toBeTruthy();
   });
 });
