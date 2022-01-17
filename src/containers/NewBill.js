@@ -29,7 +29,6 @@ export default class NewBill {
     const email = JSON.parse(localStorage.getItem("user")).email;
     formData.append("file", file);
     formData.append("email", email);
-    console.log(fileExtension);
     if (fileFormatAuthorized.includes(fileExtension)) {
       this.handleStore(formData, fileName);
     } else {
@@ -37,7 +36,6 @@ export default class NewBill {
     }
   };
 
-  /* istanbul ignore next */
   handleStore(formData, fileName) {
     this.store
       .bills()

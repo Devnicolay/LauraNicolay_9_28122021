@@ -20,7 +20,7 @@ const row = (bill) => {
     `;
 };
 
-export const dateSorted = (data) => {
+const dateSorted = (data) => {
   return data.sort((a, b) => (new Date(a.date) < new Date(b.date) ? 1 : -1));
 };
 

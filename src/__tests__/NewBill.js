@@ -36,7 +36,7 @@ describe("Given I am connected as an employee", () => {
     });
 
     describe("When I add an image in correct format than jpg, png or jpeg", () => {
-      test("Then It should import file name and nothing alert displayed", () => {
+      test("Then It should import file name and no alert should be displayed", () => {
         // Build DOM for new bill page
         const html = NewBillUI();
         document.body.innerHTML = html;
@@ -55,7 +55,6 @@ describe("Given I am connected as an employee", () => {
 
         // Mocks
         const mockHandleChangeFile = jest.fn(newBill.handleChangeFile);
-        const mockHandleStore = jest.fn(newBill.handleStore);
         const mockAlert = jest.spyOn(window, "alert");
         window.alert = jest.fn();
 
@@ -76,8 +75,6 @@ describe("Given I am connected as an employee", () => {
         expect(inputJustificative.files[0]).toBeTruthy();
 
         expect(mockAlert).not.toHaveBeenCalled();
-
-        //expect(mockHandleStore).toHaveBeenCalled();
       });
     });
 
@@ -100,7 +97,6 @@ describe("Given I am connected as an employee", () => {
 
         // Mocks
         const mockHandleChangeFile = jest.fn(newBill.handleChangeFile);
-        const mockHandleStore = jest.fn(newBill.handleStore);
         const mockAlert = jest.spyOn(window, "alert");
         window.alert = jest.fn();
 
@@ -116,8 +112,6 @@ describe("Given I am connected as an employee", () => {
         });
         expect(mockHandleChangeFile).toHaveBeenCalled();
         expect(inputJustificative.files[0].name).not.toBe("file.jpg");
-
-        expect(mockHandleStore).not.toHaveBeenCalled();
 
         expect(mockAlert).toHaveBeenCalled();
       });
@@ -189,11 +183,6 @@ describe("Given I am connected as an employee", () => {
         expect(mockCreateBill).toHaveBeenCalled();
         // When form new bill is submited, return on bills page
         expect(screen.getAllByText("Mes notes de frais")).toBeTruthy();
-
-        //expect(screen.getAllByText("Hôtel")).toBeTruthy();
-        //expect(screen.getAllByText("Hôtel à Paris")).toBeTruthy();
-        //expect(screen.getAllByText("4 Jan. 21")).toBeTruthy();
-        //expect(screen.getAllByText("149 €")).toBeTruthy();
       });
     });
   });

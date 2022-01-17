@@ -35,19 +35,19 @@ describe("Given I am connected as an employee", () => {
       expect(numberOfBills).toHaveLength(4);
 
       const typeOfBill = screen.getAllByTestId("type");
-      expect(typeOfBill[0]).toBeTruthy();
+      expect(typeOfBill[0].innerHTML).toBe("Hôtel et logement");
 
       const nameOfBill = screen.getAllByTestId("name");
-      expect(nameOfBill[0]).toBeTruthy();
+      expect(nameOfBill[0].innerHTML).toBe("encore");
 
       const dateOfBill = screen.getAllByTestId("date");
-      expect(dateOfBill[0]).toBeTruthy();
+      expect(dateOfBill[0].innerHTML).toBe("4 Avr. 04");
 
       const amountOfBill = screen.getAllByTestId("amount");
-      expect(amountOfBill[0]).toBeTruthy();
+      expect(amountOfBill[0].innerHTML).toBe("400 €");
 
       const statusOfBill = screen.getAllByTestId("status");
-      expect(statusOfBill[0]).toBeTruthy();
+      expect(statusOfBill[0].innerHTML).toBe("pending");
 
       const eyes = screen.getAllByTestId("icon-eye");
       expect(eyes[0]).toBeTruthy();
@@ -77,10 +77,10 @@ describe("Given I am connected as an employee", () => {
         .map((e) => e.innerHTML);
 
       const expectedSortedDates = [
-        formatDate(bills[1].date), // 2001
-        formatDate(bills[3].date), // 2002
-        formatDate(bills[2].date), // 2003
         formatDate(bills[0].date), // 2004
+        formatDate(bills[2].date), // 2003
+        formatDate(bills[3].date), // 2002
+        formatDate(bills[1].date), // 2001
       ];
       expect(displayedDates).toEqual(expectedSortedDates);
     });
@@ -94,7 +94,7 @@ describe("Given I am connected as an employee", () => {
         const btnNewBill = screen.getByTestId("btn-new-bill");
         expect(btnNewBill).toBeTruthy();
 
-        // Mock function handleClickNewBill()
+        // Simulate Bills page
         const store = null;
         const onNavigate = (pathname) => {
           document.body.innerHTML = ROUTES({ pathname });
@@ -106,6 +106,7 @@ describe("Given I am connected as an employee", () => {
           localStorage: window.localStorage,
         });
 
+        // Mock function handleClickNewBill()
         const mockHandleClickNewBill = jest.fn(mockBills.handleClickNewBill());
 
         btnNewBill.addEventListener("click", mockHandleClickNewBill);
@@ -117,12 +118,12 @@ describe("Given I am connected as an employee", () => {
     });
 
     describe("When I click on icon eye", () => {
-      test("Then it should have open modal", () => {
+      test("Then it should have opened modal", () => {
         // Build DOM with data of bills
         const html = BillsUI({ data: [...bills] });
         document.body.innerHTML = html;
 
-        // Mock function handleClickIconEye()
+        // Simulate Bills page
         const store = null;
         const onNavigate = (pathname) => {
           document.body.innerHTML = ROUTES({ pathname });
@@ -139,6 +140,7 @@ describe("Given I am connected as an employee", () => {
         const eyes = screen.getAllByTestId("icon-eye");
         expect(eyes).toBeTruthy();
 
+        // Mock function handleClickIconEye()
         const mockHandleClickIconEye = jest.fn(
           mockBills.handleClickIconEye(eyes[0])
         );
