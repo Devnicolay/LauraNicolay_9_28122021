@@ -1,4 +1,4 @@
-import { fireEvent, screen } from "@testing-library/dom";
+import { fireEvent, screen, waitFor } from "@testing-library/dom";
 import NewBillUI from "../views/NewBillUI.js";
 import NewBill from "../containers/NewBill.js";
 import { localStorageMock } from "../__mocks__/localStorage.js";
@@ -36,7 +36,7 @@ describe("Given I am connected as an employee", () => {
     });
 
     describe("When I add an image in correct format than jpg, png or jpeg", () => {
-      test("Then It should import file name and no alert should be displayed", () => {
+      test("Then It should import file name and no alert should be displayed", async () => {
         // Build DOM for new bill page
         const html = NewBillUI();
         document.body.innerHTML = html;
@@ -46,35 +46,41 @@ describe("Given I am connected as an employee", () => {
           document.body.innerHTML = ROUTES({ pathname });
         };
 
+        const mockStore = {
+          bills: jest.fn(() => newBill.store),
+          create: jest.fn(() => Promise.resolve({})),
+        };
+
         const newBill = new NewBill({
           document,
           onNavigate,
-          store,
+          store: mockStore,
           localStorage: window.localStorage,
         });
 
         // Mocks
-        const mockHandleChangeFile = jest.fn(newBill.handleChangeFile);
+        newBill.handleStore = jest.fn(newBill.handleStore);
+        newBill.handleChangeFile = jest.fn(newBill.handleChangeFile);
         const mockAlert = jest.spyOn(window, "alert");
         window.alert = jest.fn();
 
         const inputJustificative = screen.getByTestId("file");
-        expect(inputJustificative).toBeTruthy();
 
         // Simulate if the file is an jpg extension
-        inputJustificative.addEventListener("change", mockHandleChangeFile);
         fireEvent.change(inputJustificative, {
           target: {
             files: [new File(["file.jpg"], "file.jpg", { type: "file/jpg" })],
           },
         });
 
-        expect(mockHandleChangeFile).toHaveBeenCalled();
         expect(inputJustificative.files[0].name).toBe("file.jpg");
 
-        expect(inputJustificative.files[0]).toBeTruthy();
-
         expect(mockAlert).not.toHaveBeenCalled();
+
+        await waitFor(() =>
+          expect(newBill.handleChangeFile).toHaveBeenCalled()
+        );
+        await waitFor(() => expect(newBill.handleStore).toHaveBeenCalled());
       });
     });
 
@@ -96,24 +102,24 @@ describe("Given I am connected as an employee", () => {
         });
 
         // Mocks
-        const mockHandleChangeFile = jest.fn(newBill.handleChangeFile);
-        const mockAlert = jest.spyOn(window, "alert");
+        newBill.handleChangeFile = jest.fn(newBill.handleChangeFile);
+        newBill.handleStore = jest.fn(newBill.handleStore);
         window.alert = jest.fn();
 
         const inputJustificative = screen.getByTestId("file");
         expect(inputJustificative).toBeTruthy();
 
         // Simulate if the file is wrong format and is not an jpg, png or jpeg extension
-        inputJustificative.addEventListener("change", mockHandleChangeFile);
         fireEvent.change(inputJustificative, {
           target: {
             files: [new File(["file.pdf"], "file.pdf", { type: "file/pdf" })],
           },
         });
-        expect(mockHandleChangeFile).toHaveBeenCalled();
+        expect(newBill.handleChangeFile).toHaveBeenCalled();
         expect(inputJustificative.files[0].name).not.toBe("file.jpg");
 
-        expect(mockAlert).toHaveBeenCalled();
+        expect(newBill.handleStore).not.toHaveBeenCalled();
+        expect(window.alert).toHaveBeenCalled();
       });
     });
 

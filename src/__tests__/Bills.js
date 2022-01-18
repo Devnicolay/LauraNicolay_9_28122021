@@ -94,7 +94,7 @@ describe("Given I am connected as an employee", () => {
         const btnNewBill = screen.getByTestId("btn-new-bill");
         expect(btnNewBill).toBeTruthy();
 
-        // Simulate Bills page
+        // Instantiate NewBill()
         const store = null;
         const onNavigate = (pathname) => {
           document.body.innerHTML = ROUTES({ pathname });
@@ -123,7 +123,7 @@ describe("Given I am connected as an employee", () => {
         const html = BillsUI({ data: [...bills] });
         document.body.innerHTML = html;
 
-        // Simulate Bills page
+        // Instantiate NewBill()
         const store = null;
         const onNavigate = (pathname) => {
           document.body.innerHTML = ROUTES({ pathname });
